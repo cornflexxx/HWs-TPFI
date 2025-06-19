@@ -1,5 +1,6 @@
 import Control.Monad (foldM, join)
 import Control.Monad.State
+import Data.STRef (newSTRef)
 
 -- ST ---------------------------------------------
 newtype ST a = S (State' -> (a, State'))
@@ -67,6 +68,17 @@ adder' =
               >>= print . sum
         )
 
+adder'' =
+  do
+    x <- readInt
+    y <- adderAux x
+    print y
+  where
+    adderAux 0 = return 0
+    adderAux x =
+      readInt >>= \y ->
+        (+ y) <$> adderAux (x - 1)
+
 -- implementazione replicateM
 repeatFor cnt0 f =
   loop cnt0
@@ -89,6 +101,10 @@ divisors :: Integer -> [Integer]
 divisors n = [d | d <- [1 .. div n 2], mod n d == 0]
 
 divisors' n = filter ((== 0) . mod n) [1 .. div n 2]
+
+divisors'' n = [1 .. div n 2] >>= f
+  where
+    f = filter ((== 0) . mod n) . (: [])
 
 divisorsNoSense n =
   join $
@@ -177,7 +193,7 @@ nodiEqDo (Node a l r) =
             then (a : xs', up)
             else (xs', up)
     setST st
-    pure (down + a)
+    return (down + a)
 
 nodiEqDo' =
   fst
@@ -187,12 +203,11 @@ nodiEqDo' =
 
 -- alberi con branching illimitato
 
-
 nodiEqT :: (Num a, Eq a) => Tree a -> State ([a], a) a
 nodiEqT (K a ts) = do
   (xs, up) <- get
   put (xs, up + a)
-  down <- foldr ( (<*>) . ((+) <$>) . nodiEqT) (pure 0) ts       -- oppure foldr (liftA2 (+) . nodiEqT) ... , perché liftA2 f x y = f <$> x <*> y 
+  down <- foldr ((<*>) . ((+) <$>) . nodiEqT) (pure 0) ts -- oppure foldr (liftA2 (+) . nodiEqT) ... , perché liftA2 f x y = f <$> x <*> y
   (xs', _) <- get
   let st =
         if up == down
@@ -202,8 +217,6 @@ nodiEqT (K a ts) = do
   return (down + a)
 
 nodiEqT' =
-   fst
+  fst
     . flip execState ([], 0)
     . nodiEqT
-
-

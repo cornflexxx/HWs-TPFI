@@ -1,6 +1,5 @@
 type Stream a = [a]
 
-
 unfold :: (b -> (a, b)) -> b -> Stream a
 unfold f y = x : unfold f y' where (x, y') = f y
 
@@ -112,11 +111,15 @@ for h (S n) = h . for h n
 
 -- for
 primRec'' :: ((Nat, b) -> b) -> b -> Nat -> b
-primRec'' h a n = snd $ for (\(c, d) -> (S c, h (c, d))) n (Z, a)
+primRec'' h a n =
+  snd $
+    for (\(c, d) -> (S c, h (c, d))) n (Z, a)
 
 -- Iter
 primRec' :: ((Nat, b) -> b) -> b -> Nat -> b
-primRec' h a = snd . iter (\(c, d) -> (S c, h (c, d))) (Z, a)
+primRec' h a =
+  snd
+    . iter (\(c, d) -> (S c, h (c, d))) (Z, a)
 
 -- churchN h a = h(h(...h(a)))  n volte, un numero di church ha lo stesso tipo di un iteratore
 -- quindi possiamo utilizzarlo proprio come fatto sopra con il for (è come se stessi usando iter per creare primRec)
@@ -136,7 +139,7 @@ ackermann =
     ( \_ f n ->
         pr (\_ h -> f h) (f 1) n
     )
-    (+ 1)
+    succ
 
 -- Ex 5 -------------------------------------------------------
 

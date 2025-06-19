@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//merge ricorsiva
+// merge ricorsiva
 void merge(int *dx, int *sx, int ld, int ls, int *mx) {
   if (ld && ls) {
     if (*dx <= *sx) {
@@ -20,7 +20,7 @@ void merge(int *dx, int *sx, int ld, int ls, int *mx) {
   }
 }
 
-//merge iterativa
+// merge iterativa
 void mergeI(int *dx, int *sx, int ld, int ls, int *mx) {
   while (ld && ls) {
     if (*dx <= *sx)
@@ -34,8 +34,8 @@ void mergeI(int *dx, int *sx, int ld, int ls, int *mx) {
     *mx++ = *sx++;
 }
 
-//trova le sequenze ordinate e le memorizza in un array kx, ritorna il
-//numero di sequenze k
+// trova le sequenze ordinate e le memorizza in un array kx, ritorna il
+// numero di sequenze k
 int *ordSeq(int *ax, int la, int *k) {
   int *kx = (int *)calloc(la, sizeof(int));
   *k = 0;
@@ -52,7 +52,7 @@ int *ordSeq(int *ax, int la, int *k) {
   return kx;
 }
 
-//2.2 merge sort con O(nlogk) divide l'array in sequenze ordinate massime
+// 2.2 merge sort con O(nlogk) divide l'array in sequenze ordinate massime
 int mergeSortEff(int *ax, int la) {
   int *kx, k;
   int *mx = (int *)malloc(sizeof(int) * la);
@@ -75,15 +75,20 @@ int mergeSortEff(int *ax, int la) {
     int *tmp = ax;
     ax = mx, mx = tmp;
   }
+
   memcpy(ori_ax, ax, sizeof(int) * la);
   free(kx);
-  free(mx);
+  if (mx != ori_ax)
+    free(mx);
+  else
+    free(ax);
   return 0;
 }
 
 // 2.1) merge sort iterativo , con merge ricorsivo o merge iterativo (mergeI)
 int mergeSort(int *ax, int la) {
   int *mx = (int *)malloc(sizeof(int) * la);
+  int *ori_ax = ax;
   for (int offs = 1; offs < la; offs <<= 1) {
     for (int i = 0; i < la; i += 2 * offs) {
       int m = (i + offs > la) ? la : i + offs;
@@ -93,14 +98,19 @@ int mergeSort(int *ax, int la) {
     int *tmp = ax;
     ax = mx, mx = tmp;
   }
-  free(mx);
+
+  memcpy(ori_ax, ax, sizeof(int) * la);
+  if (mx != ori_ax)
+    free(mx);
+  else
+    free(ax);
   return 0;
 }
 
 int main(void) {
-  int ax[] = {1, 2, 33, 7, 1, 2, 59, 1, 24};
-  int n = sizeof(ax) / sizeof(ax[0]);
-  mergeSortEff(ax, n);
+  int ax[] = {2, 1, 1, 2, 1, 2, 1, 2};
+  int n = sizeof(ax) / sizeof(int);
+  mergeSort(ax, n);
   for (int i = 0; i < n; i++) {
     printf("%d ", ax[i]);
   }

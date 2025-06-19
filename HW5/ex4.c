@@ -5,8 +5,8 @@
 #include <time.h>
 
 typedef struct {
-  int16_t succ;
-  int16_t prec;
+  int succ;
+  int prec;
 } Pair;
 
 #define BLOCK_TIME(block)                                                      \
@@ -18,8 +18,8 @@ typedef struct {
   }
 
 void initNatsPair(int n, Pair *nats) {
-  while (n--)
-    nats->succ = 1, nats++->prec = 1;
+  for (int i = 2; i <= n; i++)
+    nats[i].succ = 1, nats[i].prec = 1;
 }
 
 void initNatsBool(int n, bool *nats) {
@@ -40,11 +40,10 @@ Pair *eulerSieve(int n) {
       toDel[j++] = i * maxPrime;
       i += primes[i].succ;
     }
-    while (j--) {
-      Pair toDelPair = primes[toDel[j]];
-      primes[toDel[j] - toDelPair.prec].succ += toDelPair.succ;
-      if (toDel[j] + toDelPair.succ <= n)
-        primes[toDel[j] + toDelPair.succ].prec += toDelPair.prec;
+    for (int q = 0; q < j; q++) {
+      Pair *toDelPair = &primes[toDel[q]];
+      toDelPair[-toDelPair->prec].succ += toDelPair->succ;
+      toDelPair[toDelPair->succ].prec += toDelPair->prec;
     }
     maxPrime += primes[maxPrime].succ;
   }
@@ -116,17 +115,18 @@ int main(int argc, char **argv) {
   int n = atoi(argv[1]);
 
   clock_t begin = clock();
-  printPrimesPair(n);
+  eulerSieve(n);
   clock_t end = clock();
   double time_spent_euler = (double)(end - begin) / CLOCKS_PER_SEC;
 
   begin = clock();
-  printPrimesBool(n);
+  erathostenesSieve(n);
   end = clock();
   double time_spent_erath = (double)(end - begin) / CLOCKS_PER_SEC;
 
+  int k;
   begin = clock();
-  printPrimesLinear(n);
+  linearSieve(n,&k);
   end = clock();
   double time_spent_linear = (double)(end - begin) / CLOCKS_PER_SEC;
 
